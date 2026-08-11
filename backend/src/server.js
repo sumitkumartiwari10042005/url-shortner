@@ -1,16 +1,22 @@
-import express from "express"
-import dotenv from "dotenv"
+import dotenv from 'dotenv';
+dotenv.config(); 
 
-dotenv.config();
+import app from './app.js';
+import connectDB from './config/db.js';
+import redisClient from './config/redis.js'; 
 
-const app=express();
+const PORT = process.env.PORT || 3000;
 
-const PORT=process.env.PORT || 3000;
+const startServer = async () => {
+  await connectDB();
 
-app.get("/",(req,res)=>{
-    res.send("hello from server");
-})
+  redisClient.set('test', 'hello').then(() => {
+  redisClient.get('test').then(console.log);
+   });
 
-app.listen(PORT,()=>{
-    console.log(`Server is listening on http://localhost:${PORT}`)
-})
+  app.listen(PORT, () => {
+    console.log(`Server is listening on http://localhost:${PORT}`);
+  });
+};
+
+startServer();
