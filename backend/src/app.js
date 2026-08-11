@@ -17,12 +17,12 @@ app.use(express.json());
 app.use(cookieParser());          
 
 
-// app.get('/', (req, res) => {
-//   res.send('hello from server');
-// });
+app.get('/', (req, res) => {
+  res.send('hello from server');
+});
 
-app.use('/api/auth', authRoutes);
-app.use('/api', urlRoutes);
+app.use('/api/auth',authLimiter ,authRoutes);
+app.use('/api', apiLimiter,urlRoutes);
 app.use('/', redirectRoutes);
 
 app.use(notFoundHandler);
