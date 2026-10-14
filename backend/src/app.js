@@ -5,7 +5,7 @@ import authRoutes from './routes/auth.routes.js';
 import urlRoutes from './routes/url.routes.js';
 import redirectRoutes from './routes/redirect.routes.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
-import { apiLimiter, authLimiter } from './middleware/rateLimiter.js';
+import { apiLimiter} from './middleware/rateLimiter.js';
 
 const app = express();
 
@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
   res.send('hello from server');
 });
 
-app.use('/api/auth',authLimiter ,authRoutes);
+app.use('/api/auth',authRoutes);
 app.use('/api', apiLimiter,urlRoutes);
 app.use('/', redirectRoutes);
 

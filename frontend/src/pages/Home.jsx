@@ -6,22 +6,22 @@ const Home = () => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div>
-      <h1>URL Shortener</h1>
-      <p>Paste a long link, get a short one — no login required.</p>
+    <main className="page">
+      <section className="hero">
+        <h1>Paste a long URL. Get a short one.</h1>
+        <p>No account needed. Sign in if you want a list of your links to manage and delete later.</p>
 
-      <ShortenForm />
+        <ShortenForm autoFocus />
 
-      {isAuthenticated ? (
-        <p>
-          Want to see all your links? <Link to="/dashboard">Go to your dashboard</Link>
+        <p className="hero-footnote">
+          {isAuthenticated ? (
+            <>Your saved links are in <Link to="/dashboard">Links</Link>.</>
+          ) : (
+            <><Link to="/register">Create an account</Link> to keep track of what you've shortened.</>
+          )}
         </p>
-      ) : (
-        <p>
-          <Link to="/login">Log in</Link> to save and manage your shortened links.
-        </p>
-      )}
-    </div>
+      </section>
+    </main>
   );
 };
 

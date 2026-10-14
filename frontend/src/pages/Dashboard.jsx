@@ -5,21 +5,20 @@ import ShortenForm from '../components/ShortenForm.jsx';
 import UrlList from '../components/UrlList.jsx';
 
 const Dashboard = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { loading: authLoading } = useAuth();
   const [urls, setUrls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-  
     if (authLoading) return;
 
     const fetchUrls = async () => {
       try {
         const { data } = await api.get('/api/urls');
         setUrls(data);
-      } catch (err) {
-        setError('Could not load your URLs. Please try again.');
+      } catch {
+        setError('Could not load your links. Refresh the page to try again.');
       } finally {
         setLoading(false);
       }
@@ -28,12 +27,15 @@ const Dashboard = () => {
     fetchUrls();
   }, [authLoading]);
 
-  
   const handleNewUrl = (newUrl) => {
-    setUrls((prev) => [
-      { ...newUrl, _id: newUrl.shortCode, clicks: 0 }, 
-      ...prev,
-    ]);
+    setUrls((prev) => {
+      const existing = prev.find((url) => url._id === newUrl._id);
+      if (existing) {
+        const rest = prev.filter((url) => url._id !== newUrl._id);
+        return [{ ...newUrl, clicks: existing.clicks }, ...rest];
+      }
+      return [{ ...newUrl, clicks: 0 }, ...prev];
+    });
   };
 
   const handleDelete = async (id) => {
@@ -41,24 +43,26 @@ const Dashboard = () => {
     setUrls((prev) => prev.filter((url) => url._id !== id));
   };
 
-  if (authLoading || loading) {
-    return <p>Loading...</p>;
-  }
-
   return (
-    <div>
-      <h1>Your Dashboard</h1>
+    <main className="page">
+      <h1>Links</h1>
 
-      <ShortenForm onNewUrl={handleNewUrl} />
+      <ShortenForm onNewUrl={handleNewUrl} autoFocus />
 
-      {error && <p role="alert">{error}</p>}
+      {(authLoading || loading) && <p className="state-loading">Loading…</p>}
 
-      {urls.length === 0 ? (
-        <p>You haven't shortened any URLs yet.</p>
-      ) : (
+      {!authLoading && !loading && error && <p className="state-error" role="alert">{error}</p>}
+
+      {!authLoading && !loading && !error && urls.length === 0 && (
+        <div className="state-empty">
+          No links yet. Paste a URL above and it will show up here with its click count.
+        </div>
+      )}
+
+      {!authLoading && !loading && urls.length > 0 && (
         <UrlList urls={urls} onDelete={handleDelete} />
       )}
-    </div>
+    </main>
   );
 };
 

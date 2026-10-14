@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+// Renders one table row. Kept named UrlCard so existing imports don't change.
 const UrlCard = ({ url, onDelete }) => {
   const [copied, setCopied] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -10,49 +11,44 @@ const UrlCard = ({ url, onDelete }) => {
     try {
       await navigator.clipboard.writeText(shortUrl);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopied(false), 1500);
     } catch {
-     
+      // clipboard blocked — nothing useful to show, user can select the code manually
     }
   };
 
   const handleDelete = async () => {
-    if (!onDelete) return;
     setDeleting(true);
     try {
       await onDelete(url._id);
-    
     } catch {
-      setDeleting(false); 
+      setDeleting(false);
     }
   };
 
-  
-  const displayLongUrl =
-    url.longUrl.length > 60 ? `${url.longUrl.slice(0, 60)}...` : url.longUrl;
-
   return (
-    <div>
-      <a href={shortUrl} target="_blank" rel="noopener noreferrer">
-        {shortUrl}
-      </a>
-
-      <p title={url.longUrl}>{displayLongUrl}</p>
-
-      <div>
-        <span>{url.clicks ?? 0} clicks</span>
-        <span>{new Date(url.createdAt).toLocaleDateString()}</span>
-      </div>
-
-      <div>
-        <button onClick={handleCopy}>{copied ? 'Copied!' : 'Copy'}</button>
-        {onDelete && (
-          <button onClick={handleDelete} disabled={deleting}>
-            {deleting ? 'Deleting...' : 'Delete'}
+    <tr>
+      <td className="td-code">
+        <a href={shortUrl} target="_blank" rel="noopener noreferrer">
+          /{url.shortCode}
+        </a>
+      </td>
+      <td className="td-long" title={url.longUrl}>{url.longUrl}</td>
+      <td className="td-clicks">{url.clicks ?? 0}</td>
+      <td className="td-date">{new Date(url.createdAt).toLocaleDateString()}</td>
+      <td>
+        <div className="td-actions">
+          <button className="btn btn-secondary btn-sm" onClick={handleCopy}>
+            {copied ? 'Copied' : 'Copy'}
           </button>
-        )}
-      </div>
-    </div>
+          {onDelete && (
+            <button className="btn btn-danger btn-sm" onClick={handleDelete} disabled={deleting}>
+              {deleting ? 'Deleting' : 'Delete'}
+            </button>
+          )}
+        </div>
+      </td>
+    </tr>
   );
 };
 

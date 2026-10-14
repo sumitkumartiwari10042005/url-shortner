@@ -19,8 +19,8 @@ export const shortenLimiter = rateLimit({
 
 export const apiLimiter = rateLimit({
   store: buildRedisStore(),
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: 1 * 60 * 1000,
+  max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: 'Too many requests from this IP, please try again later' },
@@ -29,8 +29,8 @@ export const apiLimiter = rateLimit({
 
 export const authLimiter = rateLimit({
   store: buildRedisStore(),
-  windowMs: 15 * 60 * 1000,
-  max: 10,
+  windowMs: 1 * 60 * 1000,
+  max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: 'Too many auth attempts from this IP, please try again later' },

@@ -16,9 +16,26 @@ export const shortenUrl = async (req, res) => {
       return res.status(400).json({ message: 'Please provide a valid URL' });
     }
 
-   
+    
     if (longUrl.includes(process.env.BASE_URL)) {
       return res.status(400).json({ message: 'Cannot shorten a URL from this domain' });
+    }
+
+
+    const existingUrl = await Url.findOne({
+      longUrl,
+      userId: req.user?.id || null,
+    });
+
+    if (existingUrl) {
+      return res.status(200).json({
+        _id: existingUrl._id,
+        shortUrl: `${process.env.BASE_URL}/${existingUrl.shortCode}`,
+        longUrl: existingUrl.longUrl,
+        shortCode: existingUrl.shortCode,
+        createdAt: existingUrl.createdAt,
+        reused: true, 
+      });
     }
 
     const shortCode = await generateShortCode(); 
@@ -29,9 +46,11 @@ export const shortenUrl = async (req, res) => {
       userId: req.user?.id || null, 
     });
 
+    
     await cacheUrl(shortCode, longUrl);
 
     res.status(201).json({
+      _id: url._id,
       shortUrl: `${process.env.BASE_URL}/${url.shortCode}`,
       longUrl: url.longUrl,
       shortCode: url.shortCode,
@@ -42,7 +61,6 @@ export const shortenUrl = async (req, res) => {
     res.status(500).json({ message: 'Something went wrong while shortening the URL' });
   }
 };
-
 
 
 export const redirectToLongUrl = async (req, res) => {
@@ -56,7 +74,7 @@ export const redirectToLongUrl = async (req, res) => {
       return res.status(404).json({ message: 'Short URL not found' });
     }
 
-    
+   
     Url.updateOne({ shortCode }, { $inc: { clicks: 1 } }).catch((err) =>
       console.error('Click increment failed:', err.message)
     );
@@ -94,7 +112,7 @@ export const deleteUrl = async (req, res) => {
     }
 
     await url.deleteOne();
-    await deleteCachedUrl(url.shortCode); 
+    await deleteCachedUrl(url.shortCode);
 
     res.status(200).json({ message: 'URL deleted successfully' });
   } catch (err) {
