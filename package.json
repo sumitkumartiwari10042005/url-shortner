@@ -1,0 +1,8 @@
+{
+  "name": "url-shortner",
+  "private": true,
+  "scripts": {
+    "build": "cd frontend && pnpm install && pnpm run build && cd ../backend && pnpm install",
+    "start": "cd backend && node src/server.js"
+  }
+}
